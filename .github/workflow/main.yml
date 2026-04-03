@@ -1,0 +1,50 @@
+name: CI/CD Rollback Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 🐳 Build new image
+      - name: Build Docker Image
+        run: docker build -t myapp:latest .
+
+      # 📦 Save currently running container as previous (REAL FIX)
+      - name: Save Previous Running Container
+        run: |
+          docker commit myapp myapp:previous || true
+
+      # 🚀 Deploy new version (WITH AUTO CRASH CONTROL)
+      - name: Run New Container
+        run: |
+          docker stop myapp || true
+          docker rm myapp || true
+          docker run -d -p 3000:3000 \
+            --name myapp \
+            -e CRASH=true \
+            myapp:latest
+
+      # ⏳ Wait for startup
+      - name: Wait for App
+        run: sleep 5
+
+      # ❤️ Health Check
+      - name: Health Check
+        run: |
+          curl -f http://localhost:3000 || exit 1
+
+      # 🔁 Rollback if failed
+      - name: Rollback if Failed
+        if: failure()
+        run: |
+          echo "Deployment failed. Rolling back..."
+          docker stop myapp || true
+          docker rm myapp || true
+          docker run -d -p 3000:3000 --name myapp myapp:previous
