@@ -2,7 +2,8 @@ name: CI/CD Rollback Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -15,18 +16,11 @@ jobs:
       - name: Build Docker Image
         run: docker build -t myapp:latest .
 
-      - name: Save Previous Running Container
-        run: |
-          docker commit myapp myapp:previous || true
-
       - name: Run New Container
         run: |
           docker stop myapp || true
           docker rm myapp || true
-          docker run -d -p 3000:3000 \
-            --name myapp \
-            -e CRASH=true \
-            myapp:latest
+          docker run -d -p 3000:3000 --name myapp -e CRASH=true myapp:latest
 
       - name: Wait for App
         run: sleep 5
@@ -38,14 +32,14 @@ jobs:
       - name: Rollback if Failed
         if: failure()
         run: |
-       echo "Deployment failed. Attempting rollback..."
+          echo "Deployment failed. Attempting rollback..."
 
-       docker stop myapp || true
-       docker rm myapp || true
+          docker stop myapp || true
+          docker rm myapp || true
 
-        if docker image inspect myapp:previous > /dev/null 2>&1; then
-        docker run -d -p 3000:3000 --name myapp myapp:previous
-        echo "Rollback successful"
-        else
-       echo "No previous version found. Skipping rollback."
-       fi
+          if docker image inspect myapp:previous > /dev/null 2>&1; then
+            docker run -d -p 3000:3000 --name myapp myapp:previous
+            echo "Rollback successful"
+          else
+            echo "No previous version found. Skipping rollback."
+          fi
