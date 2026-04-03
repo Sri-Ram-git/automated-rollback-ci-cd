@@ -38,6 +38,14 @@ jobs:
       - name: Rollback if Failed
         if: failure()
         run: |
-          docker stop myapp || true
-          docker rm myapp || true
-          docker run -d -p 3000:3000 --name myapp myapp:previous
+       echo "Deployment failed. Attempting rollback..."
+
+       docker stop myapp || true
+       docker rm myapp || true
+
+        if docker image inspect myapp:previous > /dev/null 2>&1; then
+        docker run -d -p 3000:3000 --name myapp myapp:previous
+        echo "Rollback successful"
+        else
+       echo "No previous version found. Skipping rollback."
+       fi
