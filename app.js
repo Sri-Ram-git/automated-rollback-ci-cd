@@ -10,7 +10,10 @@ if (process.env.CRASH === "true") {
 }
 
 app.get('/', (req, res) => {
-  res.send('App Running Fine');
+  if (process.env.CRASH === "true") {
+    return res.status(500).send("Simulated Failure");
+  }
+  res.send("App Running Fine");
 });
 
 app.listen(PORT, () => {

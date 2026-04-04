@@ -37,4 +37,8 @@ jobs:
           docker stop myapp || true
           docker rm myapp || true
 
+<<<<<<< HEAD:.github/workflows/main.yml
           echo "Rollback simulated (no previous image in GitHub runner)"
+=======
+          echo "Rollback simulated (no previous image in GitHub runner)"
+>>>>>>> 6e60bdb (fixed pipeline):.github/workflow/main.yml
