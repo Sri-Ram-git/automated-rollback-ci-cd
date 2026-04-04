@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-const VERSION = process.env.VERSION || "Version 2 - Working";
+const VERSION = process.env.VERSION || "Version 1 - Working";
 
 app.get("/", (req, res) => {
   res.send(VERSION);

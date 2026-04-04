@@ -24,7 +24,7 @@ jobs:
       - name: Set Version 2
         run: |
          echo "VERSION=Version 2 - Broken" >> $GITHUB_ENV
-         
+
       # 🚀 Deploy
       - name: Deploy App
         run: |
@@ -40,7 +40,7 @@ jobs:
       - name: Health Check
         run: |
          sleep 3
-         curl --fail http://localhost:3000/crash
+         curl --fail http://localhost:3000
 
 
       # 🔁 Rollback
