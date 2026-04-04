@@ -1,0 +1,51 @@
+name: CI/CD with Rollback
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 🐳 Build Image
+      - name: Build Docker Image
+        run: docker build -t rollback-app:latest .
+
+      # 🚀 Deploy
+      - name: Deploy App
+        run: |
+          docker compose down || true
+          docker compose up -d
+          sleep 5
+
+      # 🧪 Health Check
+      - name: Health Check
+        run: curl --fail http://localhost:3000
+
+      # ✅ Save Stable Version
+      - name: Save Stable Version
+        if: success()
+        run: |
+          docker tag rollback-app:latest rollback-app:stable
+
+      # ❌ Rollback
+      - name: Rollback on Failure
+        if: failure()
+        run: |
+          echo "Rollback triggered..."
+
+          docker compose down || true
+
+          docker tag rollback-app:stable rollback-app:latest
+
+          docker compose up -d
+          sleep 5
+
+      # 📋 Logs (for demo)
+      - name: Show Running Containers
+        run: docker ps
