@@ -23,7 +23,9 @@ jobs:
       # 🔥 Change to Version 2 (simulate new release)
       - name: Set Version 2
         run: |
-          sed -i 's/Version 1 - Working/Version 2 - Broken/g' docker-compose.yml
+         echo "Updating to Version 2..."
+         sed -i 's/Version 1 - Working/Version 2 - Broken/g' docker-compose.yml
+         cat docker-compose.yml
 
       # 🚀 Deploy
       - name: Deploy App
@@ -39,7 +41,7 @@ jobs:
       # 💥 Health Check (force failure)
       - name: Health Check
         run: curl --fail http://localhost:3000/crash
-        
+
 
       # 🔁 Rollback
       - name: Rollback on Failure
