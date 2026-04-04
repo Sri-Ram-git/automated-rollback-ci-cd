@@ -38,7 +38,8 @@ jobs:
 
       # 💥 Health Check (force failure)
       - name: Health Check
-        run: curl --fail http://localhost:3000
+        run: curl --fail http://localhost:3000/crash
+        
 
       # 🔁 Rollback
       - name: Rollback on Failure
