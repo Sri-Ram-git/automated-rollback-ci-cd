@@ -15,10 +15,15 @@ jobs:
       # 🐳 Build Image
       - name: Build Docker Image
         run: docker build -t rollback-app:latest .
-      
-      # ✅ Save stable FIRST (important)
+
+      # ✅ Save Stable (important for rollback)
       - name: Save Stable Version
         run: docker tag rollback-app:latest rollback-app:stable
+
+      # 🔥 Change to Version 2 (simulate new release)
+      - name: Set Version 2
+        run: |
+          sed -i 's/Version 1 - Working/Version 2 - Broken/g' docker-compose.yml
 
       # 🚀 Deploy
       - name: Deploy App
@@ -27,29 +32,25 @@ jobs:
           docker compose up -d
           sleep 10
 
-      # 🧪 Health Check
+      # 👀 Show current version
+      - name: Show App Response
+        run: curl http://localhost:3000
+
+      # 💥 Health Check (force failure)
       - name: Health Check
         run: curl --fail http://localhost:3000/crash
 
-      # ✅ Save Stable Version
-      - name: Save Stable Version
-        if: success()
-        run: |
-          docker tag rollback-app:latest rollback-app:stable
-
-      # ❌ Rollback
+      # 🔁 Rollback
       - name: Rollback on Failure
         if: failure()
         run: |
           echo "Rollback triggered..."
-
           docker compose down || true
-
           docker tag rollback-app:stable rollback-app:latest
-
           docker compose up -d
           sleep 5
 
-      # 📋 Logs (for demo)
-      - name: Show Running Containers
-        run: docker ps
+      # 🔍 Verify rollback (MOST IMPORTANT)
+      - name: Verify Rollback
+        if: failure()
+        run: curl http://localhost:3000
