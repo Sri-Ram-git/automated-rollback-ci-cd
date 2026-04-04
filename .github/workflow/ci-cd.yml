@@ -25,7 +25,8 @@ jobs:
 
       # 🧪 Health Check
       - name: Health Check
-        run: curl --fail http://localhost:3000
+        run: curl --fail http://localhost:3000/crash
+        
 
       # ✅ Save Stable Version
       - name: Save Stable Version
