@@ -3,11 +3,6 @@
 ## 📌 Objective
 Automatically rollback to previous version if deployment fails.
 
-## ⚙️ Tech Stack
-- Node.js
-- Docker
-- GitHub Actions
-
 ## 🔁 Workflow
 1. Push code to GitHub
 2. GitHub Actions builds Docker image
